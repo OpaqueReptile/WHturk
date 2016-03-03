@@ -189,8 +189,10 @@ function setPath(obj,s){
     console.log(button);
     if (button == true) {document.getElementById("buy-path-button").style.display="inline"}
     else {document.getElementById("buy-path-button").style.display="none"};
+    if (i != undefined){
     i.labelSize = 8;
     i.alwaysLabel = 1;
+    };
     for (var pe of obj.edges){
         i = getByValue(s.graph.edges(), pe.id);
         if (i != undefined ){i.color = "#000"};
@@ -247,7 +249,7 @@ function getPath(sysA, sysB, buyPath){
            if (xhr.getResponseHeader('Content-Type') == 'text/html; charset=utf-8'){
                $('#response').text(obj); 
                setPath({"nodes": [], "edges": []},s);
-                circle.set(0.0);
+               circle.set(0.0);
            }
            else {  
                $('#response').text(" ");

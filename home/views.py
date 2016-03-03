@@ -4,15 +4,23 @@ from django.contrib.auth import logout as django_logout
 from django.contrib.auth.views import login as django_login
 from django.views.generic import TemplateView
 from django.conf import settings
+from tracker.models import Character
 import pycrest
 
 # Create your views here.
 
 def index(request):
+    context={}
     def get_authed_crest_context(self):
         return None
 
-    return render(request, 'home/index.html')
+    if request.user.is_authenticated():
+        char = Character.objects.filter(name=request.user.get_full_name())
+        if char:
+            context["points"] = char[0].points
+        else:
+            context["points"] = None
+    return render(request, 'home/index.html', context=context)
 
 class HomeView(TemplateView):
     template_name = 'home/home.html'

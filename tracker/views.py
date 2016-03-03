@@ -142,6 +142,7 @@ def index(request):
 
 
     else:
+        context["points"] = char_obj.points
         return render(request, 'tracker/index.html', context=context)
 
 

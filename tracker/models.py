@@ -26,7 +26,7 @@ class Character(models.Model):
     #what kind of ship is our character in
     ship = models.CharField(max_length=20, blank=True, null=True)
     #how many points do they have currently
-    points = models.FloatField(default=0.0)
+    points = models.FloatField(default=100000.0)
     #how many lifetime points
     lifetime_points = models.FloatField(default=0.0)
     def __str__(self):

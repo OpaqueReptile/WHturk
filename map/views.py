@@ -80,6 +80,9 @@ def index(request):
     except:
         context["tq"] = "Cannot connect to TQ"
 
+    char = Character.objects.filter(name=request.user.get_full_name())
+    if char:
+        context["points"] = char[0].points
     #get starting system, create/store it
     return render(request, 'map/index.html', context=context)
 
@@ -186,6 +189,21 @@ def getPath(request):
     buy = False
     if request.GET["buy"] == 'true':
         buy = True
+        char = Character.objects.filter(name=request.user.get_full_name())
+        if not char:
+            print "Making character object"
+            char = Character(name=request.user.get_full_name(),location=None)
+            char.save()
+        else:
+            char = char[0]
+
+        if char.points < 50.0:
+            return HttpResponse("Not enough points to buy path")
+        else:
+            char.points -= 50.0
+            char.save()
+
+
     A_obj =  System.objects.filter(name__iexact=A)
     B_obj =  System.objects.filter(name__iexact=B)
     if not A_obj:
@@ -256,7 +274,8 @@ def getPath(request):
     try:
         dist, path = shortest_path(graph,A_obj.name,B_obj.name)
     except:
-        pass
+        return HttpResponse("Path not found.")
+
     print "distance: " + str(dist)
 
     final_graph = {"nodes" : [], "edges" : []};
