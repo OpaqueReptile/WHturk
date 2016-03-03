@@ -1,0 +1,170 @@
+
+{% extends "home/header.html" %}
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+
+<head>
+
+  <!-- Basic Page Needs
+  ================================================== -->
+  <meta charset="utf-8">
+  <title>WHturk</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  {% load staticfiles %}
+
+
+  <!-- Mobile Specific Metas
+  ================================================== -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- CSS
+  ================================================== -->
+  <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{% static "home/css/font-awesome.css" %}">
+
+  <link rel="stylesheet" href="{% static "home/css/base.css" %}">
+  <link rel="stylesheet" href="{% static "home/css/skeleton.css" %}">
+  <link rel="stylesheet" href="{% static "home/css/layout.css" %}">
+  <link rel="stylesheet" href="{% static "home/css/highlights/default.css" %}">
+
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <!-- Favicons
+  ================================================== -->
+  <link rel="shortcut icon" href={% static "home/images/favicon.ico">
+
+</head>
+<body class="bg-beige">
+  <header>
+  <div class="shadow-wrap"></div>
+  <div class="shadow"></div>
+  <div class="container wrapper">
+    <div class="six columns menu-toggler">
+      <a class="local-link" href="#banner"><h5 class="title">WH<span class="blue">turk</span></h5></a>
+      <div class="menu-button right-aligned fa fa-bars fa-2"></div>
+    </div>
+    <div class="ten columns right-aligned menu">
+      <div class="wrapper">
+        <a href="#titlething" class="local-link entry">Title thing</a>
+        <a href="#features" class="local-link entry">features</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+  
+  <div class="splash big-bottom container" id="banner">
+    <div id="title" class="sixteen columns center-aligned big-bottom" style="position: relative">
+      <div class="title">
+        <h1 class="sigma">WH<span class="blue">turk</span></h1>
+      </div>
+      <div id="start">
+        <a class="boo blank no-mobile local-link" id="link-to-tutorial" href="#tutorial"><i class="fa fa-globe left"></i>tutorial</a>
+        <h5 id="version">v0.0.1</h5>
+        <a class="boo no-mobile" id="link-to-download">lorum ipsum<i class="fa fa-download"></i></a>
+      </div>
+    </div>
+    <div class="line"></div>
+  </div>
+
+
+
+  <div class="container big-bottom" id="intro">
+    <div class="sixteen columns">
+      <p>WHturk is a thing <strong>that does stuff</strong>. Wormholes are fun and EvE is ded gaem.</p>
+    </div>
+
+    <div class="line"></div>
+  </div>
+
+  <div class="container big-bottom section" id="titlething">
+    
+    <div class="headline eight columns">
+      <h3 class="blue">I'm a title header</h3>
+    </div>
+    
+    <div class="description eight columns">
+      <p>Here's a graph visualizations in js.</p>
+      
+      <div class="box" id="sigma-first"></div> <!--how does this work?-->
+    </div>
+
+    <div class="line"></div>
+  
+   </div>
+
+
+
+  <div class="container big-bottom section" id="features">
+    <div class="eight columns">
+      <h3 class="headline blue">Features</h3>
+    </div>
+
+    <div class="description eight columns">
+      <h4 class="blue">I'm a tiny header</h4>
+      <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <div class="one-third column">
+      <h5 class="underline"><i class="fa fa-check-square-o blue"></i>This little hole went to HS</h5>
+      <div class="textbox">
+      <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+
+    <div class="one-third column">
+      <h5 class="underline"><i class="fa fa-pencil blue"></i>This little hole went to LS</h5>
+      <div class="textbox">
+      <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+
+    <div class="one-third column">
+      <h5 class="underline"><i class="fa fa-puzzle-piece blue"></i>This little hole went wee wee wee all the way to null</h5>
+      <div class="textbox">
+      <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+
+    <div class="line"></div>
+  </div>
+
+
+
+<script src="{% static "home/js/jquery.min.js" %}"></script>
+<script src="{% static "home/js/jquery-scrolltofixed-min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/sigma.min.js" %}"></script>
+<script src="{% static "home/js/sigma.plugins.animate.min.js" %}"></script>
+<script src="{% static "home/js/sigma.parsers.gexf.min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/index.js" %}"></script>
+<script src="{% static "home/js/surprise.min.js" %}"></script>
+
+  <footer class="bg-blue">
+  <div class="shadow-wrap"></div>
+  <div class="shadow "></div>
+  <div class="container wrapper"></div>
+</footer>
+
+
+<div class="below-the-footer bg-blue">
+  <div class="container">
+    <div class="sixteen columns">
+      <div id="disclaimer">
+        <p>WHturk is developed by <span class="author"><a href="http://reddit.com/r/eve">Idiots</a></span>, </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+

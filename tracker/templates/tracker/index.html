@@ -1,0 +1,244 @@
+{% extends "home/header.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% load eve_tags %}
+{% block content %} 
+<style>
+
+ .sigma-scene, .sigma-labels, .sigma-mouse {
+     left: 50%; /* position the left edge of the element at the middle of the parent */
+     transform: translate(-50%, 0%); /* This is a shorthand of
+                                          translateX(-50%) and translateY(-50%) */
+     }
+
+</style>
+
+
+  <div class="splash big-bottom container" id="banner">
+    <div class="row">
+    <div  class="sixteen columns center-aligned" style="position: relative; padding-top: 10px">
+      <div class="title">
+          <div> <h3 class="sigma">Scout Points<div id="points">-</div></h3></div>
+      </div>
+    </div>
+    </div>
+    <div class="row">
+        <div class="eight columns center-aligned" style="position: relative">
+            <h4 class="sigma">Current Location</h4>
+            <div><p class="sigma" id="system">Waiting for server...</p></div>
+            <div id='example-circle-container' style="width: 10%; margin-left: auto; margin-right: auto;"></div>
+            <div style="padding-top: 40px"><p class="sigma" id="history-text" style="margin: 1px">Connection History:</p></div>
+            <div class="container four columns section offset-by-two big-bottom " id="history-container" style="center-aligned">
+                <div class="box" id="history-box" style="height: 320px">
+                <div id="history"><p class="sigma"></p></div>
+                </div>
+            <div style="padding: 10px"><a id="clear-history" class="boo no-mobile">Clear History</a></div>
+            </div>
+        </div>
+        <div class="eight columns center-aligned" style="position: relative">
+            <div class="row"> <h5 class="sigma">Your Map</h5></div>
+            
+            <div class="row section" >
+                <div  id="test-map" class="tallbox" style="margin: auto"> 
+                </div>
+                    <div style="padding: 10px"><a id="redraw" class="boo no-mobile">Redraw Map</a></div>
+            </div>
+
+        </div>
+        </div>
+    </div>
+
+    <div class="line" style="padding: 50px"></div>
+
+<script src="{% static "home/js/jquery.min.js" %}"></script>
+<script src="{% static "home/js/jquery-scrolltofixed-min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/sigma.min.js" %}"></script>
+<script src="{% static "home/js/sigma.plugins.animate.min.js" %}"></script>
+<script src="{% static "home/js/sigma.parsers.gexf.min.js" %}"></script>
+<script src="{% static "home/js/plugins/sigma.layout.forceAtlas2.min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/index.js" %}"></script>
+<script src="{% static "home/js/surprise.min.js" %}"></script>
+<script src="{% static "home/js/progressbar.min.js" %}"></script>
+<script src="{% static "home/js/js.cookie.js" %}"></script>
+
+
+<script>
+
+$(document).ready(function() {
+
+     function redraw(s){
+     s.refresh();
+     s.killForceAtlas2();
+     s.graph.nodes().forEach(function(node) {
+         node.x = Math.random()*100;
+         node.y = Math.random()*100;
+         });
+     s.startForceAtlas2();
+     s.refresh()
+     setTimeout(function() {s.killForceAtlas2(); console.log("killing atlas");}, 3000);
+     };
+
+
+    //refresh circle
+    var refresh_rate = 10000
+    var circle = new ProgressBar.Circle('#example-circle-container', {
+        color: '#00868B',
+        strokeWidth: 30,
+    });
+
+    circle.animate(1.0, {duration:refresh_rate-500}, function() {
+        circle.set(0);
+        //circle.animate(0, {duration:300});
+        });
+
+    //prepend new connections
+    var hs1 = "<div><p class=\"history-line\" >";
+    var hs2 = "</p></div>";
+    var history_list = "";
+    history_list = history_list.concat( localStorage.getItem("whturk-mapdata-history"));
+    console.log("History List:");
+    console.log(typeof history_list);
+    console.log(history_list);
+    if(!(history_list == 'null')) { $('#history').prepend(history_list) }; 
+    if(history_list == 'null') { history_list = "" }; 
+    
+    //setup graph 
+    g = {
+      nodes: JSON.parse(localStorage.getItem("whturk-mapdata-nodes")),
+      edges: JSON.parse(localStorage.getItem("whturk-mapdata-edges")),
+    };
+    console.log(g.nodes);
+    console.log(g.edges);
+    s = new sigma({
+        renderers: [
+            {
+            container: 'test-map',
+            type: 'canvas',
+            }
+        ],
+        graph: g,
+        settings: {"sideMargin": 2, },
+   }); 
+    s.configForceAtlas2({"strongGravityMode" : true, });
+    var graph_colors = {
+        "k00": "#F00000",
+        "k01": "#D73000",
+        "k02": "#F04800",
+        "k03": "#F06000",
+        "k04": "#D77700",
+        "k05": "#EFEF00",
+        "k06": "#8FEF2F",
+        "k07": "#00F000",
+        "k08": "#00EF47",
+        "k09": "#48F0C0",
+        "k10": "#2FEFEF",
+        "c1": "#deacff",
+        "c2": "#d392ff",
+        "c3": "#c979ff",
+        "c4": "#bf5fff",
+        "c5": "#b546ff",
+        "c6": "#ab2cff",
+        "c13": "#a013ff",
+        "Thera": "#6f5fff",
+    };
+    //clear history
+    document.getElementById('clear-history').addEventListener('click',function(){
+        console.log("clearing storage");
+        localStorage.clear();
+        localStorage.removeItem("whturk-mapdata-nodes");
+        localStorage.removeItem("whturk-mapdata-history");
+        localStorage.removeItem("whturk-mapdata-edges");
+        console.log("clearing graph");
+        s.graph.clear();
+        s.refresh();
+        console.log("clearing history");
+        history_list = "";
+        var history_array = [].slice.call(document.getElementsByClassName("history-line"));
+        console.log(history_array);
+        history_array.forEach(function(entry) {entry.remove()});
+    });
+
+    //re-kajigger the map
+     document.getElementById('redraw').addEventListener('click',function(){
+             redraw(s);
+     });
+
+    //loop
+    //s.configForceAtlas2({"slowDown" : 250, "gravity": .001, "iterationsPerRender": 1, "edgeWeightInfluence": 1});
+    s.startForceAtlas2();
+    setInterval(function() {
+        s.refresh();
+        circle.animate(1.0, {duration: refresh_rate - 200}, function() {
+            circle.set(0);
+            });
+        var randomnumber = Math.floor(Math.random() * 100);
+        $.get("/tracker", function(obj) {
+            console.log("get tracker");
+            //add nodes using systems
+            if(obj.update.system.name != "Unknown system or character offline..." ) {
+                try{
+                var sec = graph_colors[obj.update.system.sec];
+                console.log("startAtlas");
+                s.graph.addNode({id: obj.update.system.name, label: obj.update.system.name, x: Math.random(), y: Math.random(), size: 3, color: sec,});
+                redraw(s);
+                s.refresh();
+                }
+                catch(err){
+                console.log(err);
+                }
+            }
+
+            $('#system').text(obj.update.system.name);
+            $('#points').text(obj.update.points);
+            if(obj.update.connection.name != "INVALID") {
+                //try and grab a local storage with connection history
+                $('#history').prepend(hs1.concat(obj.update.connection.name,hs2));
+                var history_list_final = (hs1.concat(obj.update.connection.name,hs2).concat(history_list));
+                localStorage.setItem("whturk-mapdata-history", history_list_final);
+                console.log("History List LocalStorage Set:");
+                console.log(history_list_final);
+                //add edges using connections
+                try{
+                s.graph.addEdge({
+                    id: obj.update.connection.name, 
+                    source: obj.update.connection.system_A, 
+                    target: obj.update.connection.system_B, 
+                    size: 3, 
+                    color: 'grey',
+                });
+                redraw(s);
+                s.refresh();
+               }
+                catch(err){
+                console.log(err);
+                }
+            };   
+              $('#show').text( 'I am getting refreshed every 30 seconds..! Random Number ==> ' + randomnumber);
+        s.refresh();
+        console.log(s.graph.nodes());
+        console.log(s.graph.edges());
+        localStorage.setItem("whturk-mapdata-nodes", JSON.stringify(s.graph.nodes()));
+        localStorage.setItem("whturk-mapdata-edges", JSON.stringify(s.graph.edges()));
+        console.log(obj.update.points);
+        return false;
+        });
+    },refresh_rate);
+});
+
+
+</script>
+<div id="show" align="center"></div>
+
+<div class="below-the-footer bg-blue">
+  <div class="container">
+    <div class="sixteen columns">
+      <div id="disclaimer">
+        <p>WHturk is developed by <span class="author"><a href="http://reddit.com/r/eve">Idiots</a></span>, </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <!-- Basic Page Needs
+   ================================================== -->
+   <meta charset="utf-8">
+   <title>WHturk</title>
+   <meta name="description" content="">
+   <meta name="author" content="">
+   {% load staticfiles %}
+
+<!-- Mobile Specific Metas
+   ================================================== -->
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+   <!-- CSS
+   ================================================== -->
+   <link href='https://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css'>
+   <link rel="stylesheet" href="{% static "home/css/font-awesome.css" %}">
+
+   <link rel="stylesheet" href="{% static "home/css/base.css" %}">
+   <link rel="stylesheet" href="{% static "home/css/skeleton.css" %}">
+   <link rel="stylesheet" href="{% static "home/css/layout.css" %}">
+   <link rel="stylesheet" href="{% static "home/css/highlights/default.css" %}">
+
+
+   <!--[if lt IE 9]>
+     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+   <![endif]-->
+
+   <!-- Favicons
+   ================================================== -->
+   <link rel="shortcut icon" href="{% static "home/images/favicon.ico" %}">
+
+<body class="bg-beige">
+  <header>
+  <div class="shadow-wrap"></div>
+<div class="shadow"></div>
+  <div class="container wrapper">
+    <div class="six columns menu-toggler">
+      <a class="local-link" href="/"><h5 class="title">WH<span class="blue">turk</span></h5></a>
+      <div class="menu-button right-aligned fa fa-bars fa-2"></div>
+    </div>
+    <div class="ten columns right-aligned menu">
+      <div class="wrapper">
+        {% if request.get_full_path == '/' %}
+        <a href="#titlething" class="local-link entry">Title thing</a>
+        <a href="#features" class="local-link entry">features</a>
+        {%endif%}
+        {% if user.is_authenticated %}
+        <a href="/profile" class=" entry">{{ user.get_short_name }}</a>
+        <a href="/logout" class=" entry">Logout</a>
+        {% else %}
+        <a href="/login/eveonline" class=" entry">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+            {% block content %}
+            Here goes the content...
+            {% endblock %}
+
+</html>

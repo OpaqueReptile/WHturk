@@ -1,0 +1,379 @@
+{% extends "home/header.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% load eve_tags %}
+{% block content %} 
+
+<style>
+
+ .sigma-scene, .sigma-labels, .sigma-mouse {
+     left: 50%; /* position the left edge of the element at the middle of the parent */
+     transform: translate(-50%, 0%); /* This is a shorthand of
+                                          translateX(-50%) and translateY(-50%) */
+     }
+
+#line-container svg{
+    height: 1px;
+}
+
+</style>
+<div class="splash big-bottom container" id="banner">
+    <div class="row" style="margin-bottom: 5px">
+    </div>
+    <div class="row section"> 
+        <div  class="sixteen columns center-aligned" style="position: relative;">
+            <div class="row"> 
+                <div  id="test-map" class="fullbox" style="margin: auto; height: 738px"> </div> 
+                <div id="line-container" style="padding-left: 1px; padding-right: 1px; "></div>
+            </div>
+            <div class="row"> 
+            <div class = "two columns center-aligned" >
+                <input type="text" id="root-input" placeholder="root system" >
+            </div> 
+            <div class = "two columns center-aligned">
+                <input type="text" id="depth-input" placeholder="depth (5 max)">
+            </div> 
+            <div class = "two columns center-aligned">
+                <a id="draw" class="boo " href="javaScript:void(0);" style="padding-top:4px;padding-bottom:5px">Draw</a> 
+            </div> 
+            <div class = "two columns offset-by-one center-aligned">
+                <a id="redraw" class="boo " href="javaScript:void(0);" style="padding-top:4px;padding-bottom:5px">Redraw</a> 
+            </div>
+            <div class = "two columns center-aligned">
+                <a id="clear" class="boo " href="javaScript:void(0);" style="padding-top:4px;padding-bottom:5px">Clear</a> 
+            </div>
+            <div class = "four columns right-aligned" >
+                <p class="description" id="response"> </p> 
+            </div>
+            </div> 
+            <div class="row"> 
+             <div class = "two columns center-aligned" >
+                <input type="text" id="system-A" placeholder="start system">
+            </div> 
+            <div class = "two columns center-aligned">
+                <input type="text" id="system-B" placeholder="end system">
+            </div>               
+            <div class = "two columns center-aligned">
+                <a id="draw-path" class="boo " href="javaScript:void(0);" style="padding-top:4px;padding-bottom:5px">Draw Path</a> 
+            </div> 
+            <div class = "six columns center-aligned" id="buy-path-button" style="display:none">
+                <a id="draw-path" class="boo " href="javaScript:void(0);" style="padding-top:4px;padding-bottom:5px">Buy Path with 50 Points</a> 
+            </div> 
+            <div class = "one column center-aligned" id="route-working-circle">
+            </div> 
+            </div> 
+            <div class="row"> 
+                <div class="fullbox" style="margin: auto; height: 200px">
+                    <p id=logbox style="text-align: left"></p>
+                </div> 
+            </div> 
+        </div> 
+    </div>
+</div>  
+
+
+<script src="{% static "home/js/jquery.min.js" %}"></script>
+<script src="{% static "home/js/jquery-scrolltofixed-min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/sigma.min.js" %}"></script>
+<script src="{% static "home/js/sigma.plugins.animate.min.js" %}"></script>
+<script src="{% static "home/js/sigma.parsers.gexf.min.js" %}"></script>
+<script src="{% static "home/js/plugins/sigma.layout.forceAtlas2.min.js" %}"></script>
+<script src="{% static "home/js/plugins/sigma.plugins.dragNodes.min.js" %}"></script>
+<script src="{% static "home/js/highlight.pack.js" %}"></script>
+<script src="{% static "home/js/index.js" %}"></script>
+<script src="{% static "home/js/surprise.min.js" %}"></script>
+<script src="{% static "home/js/progressbar.min.js" %}"></script>
+<script src="{% static "home/js/sigma.renderers.nodeBorder.js" %}"></script>
+
+<script>
+var s;
+var line = new ProgressBar.Line('#line-container', {
+        color: '#00868B',
+    });
+
+var circle = new ProgressBar.Circle('#route-working-circle', {
+        color: '#00868B',
+        strokeWidth: 30,
+        easing: 'easeOut',
+    });
+
+function getMap(){
+    $.ajax({
+        type: 'GET',
+        url: '/map',
+        success: function(obj){
+            //add nodes and edges from database
+            s.graph.read(obj);
+            redraw(s);
+            console.log("get end");
+        }
+    });
+}
+
+function readNoDupes(obj,s){
+    var sysids=[];
+    for ( var n of obj.nodes){
+        if (s.graph.nodes().indexOf(n) == -1){
+            try{
+                s.graph.addNode(n);  
+            }
+            catch(err){
+                console.log(n)
+                console.log("Already exists")
+            }
+            };
+        };
+    for (var e of obj.edges){
+        if (s.graph.edges().indexOf(e) == -1){
+            try{
+                s.graph.addEdge(e);  
+            }
+             catch(err){
+                console.log(e)
+                console.log("Edge Already exists")
+            }
+            };
+        };
+    console.log(s.graph.nodes());
+    for(n of s.graph.nodes()){
+        sysids.push(n["id"]);
+        }; 
+    console.log(sysids);
+     for(e of s.graph.edges()){
+        if (sysids.indexOf(e.id) > -1) {
+            console.log("dropping edge");
+            s.graph.dropEdge(e.id); 
+        };  
+    };   
+}
+function getByValue(arr, value) {
+
+  for (var i=0, iLen=arr.length; i<iLen; i++) {
+
+    if (arr[i].id == value) return arr[i];
+  }
+}
+function setPath(obj,s){
+    //clear border settings on all nodes
+    for( n of s.graph.nodes()){
+        delete n['borderColor'];
+        delete n['borderWidth'];
+        delete n['labelSize'];
+        delete n['alwaysLabel'];
+    }
+    for( e of s.graph.edges()){
+        e.color = "#d8d8d8";
+    }
+    //set settings on our path nodes
+    var i;
+    var first = true;
+    var sizemod
+    var button = false
+    var sysids = [];
+    var logarrow = " -> "
+    var logstring;
+    for ( var pn of obj.nodes){
+        sizemod = 2;
+        sysids.push(pn.id);
+        if (first){ first = false; sizemod=6; logstring = pn.label}
+        else {logstring = logstring.concat(logarrow.concat(pn.label))};
+        i = getByValue(s.graph.nodes(), pn.id);
+        console.log(i)
+        i.borderColor = "#000";
+        i.borderWidth = 3;
+        i.labelSize = sizemod ;
+        if(sizemod == 6) {i.alwaysLabel=1;}
+        if (pn.id == 0) {button = true};
+        };
+    console.log(button);
+    if (button == true) {document.getElementById("buy-path-button").style.display="inline"}
+    else {document.getElementById("buy-path-button").style.display="none"};
+    i.labelSize = 8;
+    i.alwaysLabel = 1;
+    for (var pe of obj.edges){
+        i = getByValue(s.graph.edges(), pe.id);
+        if (i != undefined ){i.color = "#000"};
+    };
+    for(e of s.graph.edges()){
+        if (sysids.indexOf(e.id) > -1) {
+            console.log("dropping edge");
+            s.graph.dropEdge(e.id); 
+        };  
+    };
+    console.log(s.graph.edges());
+    redraw(s);
+    circle.set(0.0);
+    //set path in log
+    $('#logbox').text(logstring);
+
+        
+}
+
+function getNodeAndDepth(system, depth){
+    $.ajax({
+        type: 'GET',
+        url: '/map/req',
+        data: {
+            sys: system,
+            d : depth,
+        },
+        success: function(obj,stat,xhr){
+            //add nodes and edges from database
+            console.log(xhr.getResponseHeader('Content-Type'));
+            if (xhr.getResponseHeader('Content-Type') == 'text/html; charset=utf-8'){
+                $('#response').text(obj); 
+            }
+            else {  $('#response').text(" ");
+                readNoDupes(obj,s);
+                redraw(s);
+            };
+        },
+    });
+}
+
+function getPath(sysA, sysB, buyPath){
+    $.ajax({
+       type: 'GET',
+       url: '/map/path',
+       data: {
+           A: sysA,
+           B : sysB,
+           buy: buyPath, 
+       },
+       success: function(obj,stat,xhr){
+           //add nodes and edges from database
+           console.log(xhr.getResponseHeader('Content-Type'));
+           if (xhr.getResponseHeader('Content-Type') == 'text/html; charset=utf-8'){
+               $('#response').text(obj); 
+               setPath({"nodes": [], "edges": []},s);
+                circle.set(0.0);
+           }
+           else {  
+               $('#response').text(" ");
+               readNoDupes(obj,s);
+               setPath(obj,s);
+               redraw(s);
+           };
+       },
+   });
+}   
+
+var redraw_timeout
+function redraw(s, scramble){
+    if(scramble == undefined){scramble = true}; 
+    var redraw_duration = 30000;
+    line.stop();
+    line.set(0);
+    clearTimeout(redraw_timeout);
+    s.refresh();
+    s.killForceAtlas2();
+    if (scramble){
+    s.graph.nodes().forEach(function(node, i, a) {
+        node.x = Math.cos(Math.PI * 2 * i / a.length);
+        node.y = Math.sin(Math.PI * 2 * i / a.length);
+        //node.x = Math.random()*100; 
+        //node.y = Math.random()*100;
+        });};
+    if (s.graph.nodes().length > 10){
+        s.startForceAtlas2();
+    }
+    s.refresh()
+    line.animate(1.0, {duration:redraw_duration-500}, function(){line.animate(0, {duration:300})});
+    redraw_timeout = setTimeout(function() {s.killForceAtlas2(); console.log("killing atlas");}, redraw_duration);
+    };
+
+$(document).ready(function() {
+
+    //refresh line
+    var refresh_rate = 180000
+        //line.animate(1.0, {duration:refresh_rate-500}, function() {
+    //    line.animate(0, {duration:300});})
+
+    //setup graph 
+    g = {nodes: [], edges: [] };
+    s = new sigma({
+        renderers: [
+            {
+            container: 'test-map',
+            height: '30',
+            width: '30',
+            type: 'canvas',
+            }
+        ],
+        graph: g,
+        settings: {"sideMargin": 2, "maxEdgeSize": 3, 'defaultNodeType': 'border' },
+   }); 
+    s.configForceAtlas2({gravity : 0.4});
+    var drag = new sigma.plugins.dragNodes(s, s.renderers[0]);
+    drag.bind('startdrag', function(event) {
+              event.data.node.size=2;
+              console.log(event);
+              s.killForceAtlas2();
+              s.refresh()
+              });
+    drag.bind('dragend', function(event) {
+              event.data.node.size=1;
+              console.log(event);
+              s.startForceAtlas2();
+              s.refresh()
+              });
+    s.refresh()
+
+    //re-kajigger the map
+    document.getElementById('redraw').addEventListener('click',function(){
+            redraw(s);
+    });
+
+    document.getElementById('clear').addEventListener('click',function(){
+            s.graph.clear();
+            s.refresh()
+    });
+
+
+    //request a system and node depth
+    document.getElementById('draw').addEventListener('click',function(){
+            var root = document.getElementById("root-input").value;
+            var depth = document.getElementById("depth-input").value;
+            getNodeAndDepth(root,depth);
+    });
+
+    //request a path
+    var sysA
+    var sysB
+    var buyPath
+    document.getElementById('draw-path').addEventListener('click',function(){
+            circle.animate(1.0, {duration:10000});
+            sysA = document.getElementById("system-A").value;
+            sysB = document.getElementById("system-B").value;
+            buyPath = "false";
+            getPath(sysA,sysB,buyPath);
+    });
+
+    //request a paid path
+    document.getElementById('buy-path-button').addEventListener('click',function(){
+            circle.animate(1.0, {duration:10000});
+             buyPath = "true";
+            getPath(sysA,sysB,buyPath);
+    });
+
+    //loop
+    //s.configForceAtlas2({"slowDown" : 250, "gravity": .001, "iterationsPerRender": 1, "edgeWeightInfluence": 1});
+
+});
+
+
+</script>
+<div id="show" align="center"></div>
+
+<div class="below-the-footer bg-blue">
+  <div class="container">
+    <div class="sixteen columns">
+      <div id="disclaimer">
+        <p>WHturk is developed by <span class="author"><a href="http://reddit.com/r/eve">Idiots</a></span>, </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
